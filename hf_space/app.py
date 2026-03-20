@@ -454,6 +454,7 @@ def build_overview():
     scores = [r.health_score for r in sorted_recs]
 
     trend = go.Figure()
+    min_score = max(0, min(scores) - 10)
     trend.add_trace(
         go.Scatter(
             x=times,
@@ -461,16 +462,23 @@ def build_overview():
             mode="lines",
             name="Health Score",
             line=dict(color="#06d6a0", width=2, shape="spline"),
-            fill="tozeroy",
-            fillcolor="rgba(6,214,160,0.08)",
+            fill="tonexty" if min_score > 30 else "none",
+            fillcolor="rgba(6,214,160,0.06)",
         )
     )
-    trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1)
-    trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1)
+    # Only show threshold lines if they're within visible range
+    if min_score <= 75:
+        trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1,
+                        annotation_text="Warning: 75", annotation_font_size=9,
+                        annotation_font_color="#f59e0b")
+    if min_score <= 40:
+        trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1,
+                        annotation_text="Critical: 40", annotation_font_size=9,
+                        annotation_font_color="#ef4444")
     _dark(
         trend,
         title="Health Score Trend",
-        yaxis=dict(range=[0, 105], **_DARK_LAYOUT["yaxis"]),
+        yaxis=dict(range=[min_score, 105], **_DARK_LAYOUT["yaxis"]),
         height=350,
     )
 

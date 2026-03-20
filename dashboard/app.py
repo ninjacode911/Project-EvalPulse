@@ -121,6 +121,7 @@ def build_overview():
     times = [r.timestamp.strftime("%m-%d %H:%M") for r in sorted_recs]
     scores = [r.health_score for r in sorted_recs]
 
+    min_score = max(0, min(scores) - 10)
     trend = go.Figure()
     trend.add_trace(
         go.Scatter(
@@ -129,13 +130,13 @@ def build_overview():
             mode="lines",
             name="Health Score",
             line=dict(color="#06d6a0", width=2, shape="spline"),
-            fill="tozeroy",
-            fillcolor="rgba(6,214,160,0.08)",
         )
     )
-    trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1)
-    trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1)
-    _dark(trend, title="Health Score Trend", yaxis=dict(range=[0, 105], **_DARK_LAYOUT["yaxis"]), height=350)
+    if min_score <= 75:
+        trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1)
+    if min_score <= 40:
+        trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1)
+    _dark(trend, title="Health Score Trend", yaxis=dict(range=[min_score, 105], **_DARK_LAYOUT["yaxis"]), height=350)
 
     alert_rows = [["—", "", "", "", "", "No alerts triggered"]]
     if alerts:
