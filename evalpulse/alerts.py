@@ -140,8 +140,10 @@ class AlertEngine:
         is_below: bool = False,
     ) -> Alert | None:
         """Fire an alert if cooldown has elapsed."""
-        last = self._last_fired.get(metric, 0)
-        if (now - last) < self._cooldown:
+        if metric not in self._last_fired:
+            # First time seeing this metric — always fire
+            self._last_fired[metric] = now
+        elif (now - self._last_fired[metric]) < self._cooldown:
             return None
 
         self._last_fired[metric] = now
