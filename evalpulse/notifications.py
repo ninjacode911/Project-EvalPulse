@@ -114,9 +114,7 @@ class NotificationDispatcher:
         Only sends to verified Slack webhook URLs to prevent SSRF.
         """
         if not NotificationDispatcher._validate_slack_url(webhook_url):
-            logger.warning(
-                "Slack webhook URL rejected: must be https://hooks.slack.com/..."
-            )
+            logger.warning("Slack webhook URL rejected: must be https://hooks.slack.com/...")
             return
 
         severity_emoji = ":red_circle:" if alert.severity == "critical" else ":warning:"

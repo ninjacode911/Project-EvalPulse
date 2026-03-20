@@ -136,20 +136,27 @@ def build_overview():
         trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1)
     if min_score <= 40:
         trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1)
-    _dark(trend, title="Health Score Trend", yaxis=dict(range=[min_score, 105], **_DARK_LAYOUT["yaxis"]), height=350)
+    _dark(
+        trend,
+        title="Health Score Trend",
+        yaxis=dict(range=[min_score, 105], **_DARK_LAYOUT["yaxis"]),
+        height=350,
+    )
 
     alert_rows = [["—", "", "", "", "", "No alerts triggered"]]
     if alerts:
         alert_rows = []
         for a in alerts[:20]:
-            alert_rows.append([
-                a.timestamp.strftime("%Y-%m-%d %H:%M"),
-                a.severity.upper(),
-                a.metric,
-                f"{a.value:.4f}",
-                f"{a.threshold:.4f}",
-                a.message,
-            ])
+            alert_rows.append(
+                [
+                    a.timestamp.strftime("%Y-%m-%d %H:%M"),
+                    a.severity.upper(),
+                    a.metric,
+                    f"{a.value:.4f}",
+                    f"{a.threshold:.4f}",
+                    a.message,
+                ]
+            )
 
     return (
         _kpi_card("Health Score", str(avg_health), h_sub, "#06d6a0"),
@@ -187,14 +194,24 @@ def build_hallucination():
         )
     )
     rate.add_hline(
-        y=0.3, line_dash="dot", line_color="#f59e0b",
+        y=0.3,
+        line_dash="dot",
+        line_color="#f59e0b",
         annotation_text="Threshold 0.3",
-        annotation_font_size=9, annotation_font_color="#f59e0b",
+        annotation_font_size=9,
+        annotation_font_color="#f59e0b",
     )
-    _dark(rate, title="Hallucination Score Over Time", yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]), height=350)
+    _dark(
+        rate,
+        title="Hallucination Score Over Time",
+        yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]),
+        height=350,
+    )
 
     dist = go.Figure(
-        go.Histogram(x=h_scores, nbinsx=25, marker_color="#ef4444", opacity=0.7, marker_line_width=0)
+        go.Histogram(
+            x=h_scores, nbinsx=25, marker_color="#ef4444", opacity=0.7, marker_line_width=0
+        )
     )
     dist.add_vline(x=0.3, line_dash="dot", line_color="#f59e0b")
     _dark(dist, title="Score Distribution", height=300, bargap=0.05)
@@ -241,9 +258,7 @@ def build_drift():
     sorted_recs = sorted(records, key=lambda r: r.timestamp)
     drift_recs = [r for r in sorted_recs if r.drift_score is not None]
 
-    emb_recs = [
-        r for r in sorted_recs if r.embedding_vector and len(r.embedding_vector) > 2
-    ]
+    emb_recs = [r for r in sorted_recs if r.embedding_vector and len(r.embedding_vector) > 2]
     if len(emb_recs) >= 3:
         embed = go.Figure(
             go.Scatter(
@@ -292,12 +307,20 @@ def build_drift():
         )
     )
     dfig.add_hline(
-        y=0.15, line_dash="dot", line_color="#ef4444",
+        y=0.15,
+        line_dash="dot",
+        line_color="#ef4444",
         annotation_text="Threshold 0.15",
-        annotation_font_size=9, annotation_font_color="#ef4444",
+        annotation_font_size=9,
+        annotation_font_color="#ef4444",
     )
     y_max = max(max(scores) * 1.2, 0.3)
-    _dark(dfig, title="Drift Score Over Time", yaxis=dict(range=[0, y_max], **_DARK_LAYOUT["yaxis"]), height=350)
+    _dark(
+        dfig,
+        title="Drift Score Over Time",
+        yaxis=dict(range=[0, y_max], **_DARK_LAYOUT["yaxis"]),
+        height=350,
+    )
 
     avg = sum(scores) / len(scores)
     if avg < 0.1:
@@ -341,7 +364,12 @@ def build_rag_quality():
             line=dict(color="#ef4444", width=2, shape="spline"),
         )
     )
-    _dark(qfig, title="Quality Metrics Over Time", yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]), height=350)
+    _dark(
+        qfig,
+        title="Quality Metrics Over Time",
+        yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]),
+        height=350,
+    )
 
     rag_recs = [r for r in sorted_recs if r.groundedness_score is not None]
     if rag_recs:
@@ -349,26 +377,37 @@ def build_rag_quality():
         rfig = go.Figure()
         rfig.add_trace(
             go.Scatter(
-                x=rt, y=[r.faithfulness_score or 0 for r in rag_recs],
-                mode="lines", name="Faithfulness",
+                x=rt,
+                y=[r.faithfulness_score or 0 for r in rag_recs],
+                mode="lines",
+                name="Faithfulness",
                 line=dict(color="#06d6a0", width=2, shape="spline"),
             )
         )
         rfig.add_trace(
             go.Scatter(
-                x=rt, y=[r.context_relevance or 0 for r in rag_recs],
-                mode="lines", name="Context Relevance",
+                x=rt,
+                y=[r.context_relevance or 0 for r in rag_recs],
+                mode="lines",
+                name="Context Relevance",
                 line=dict(color="#3b82f6", width=2, shape="spline"),
             )
         )
         rfig.add_trace(
             go.Scatter(
-                x=rt, y=[r.groundedness_score or 0 for r in rag_recs],
-                mode="lines", name="Groundedness",
+                x=rt,
+                y=[r.groundedness_score or 0 for r in rag_recs],
+                mode="lines",
+                name="Groundedness",
                 line=dict(color="#a78bfa", width=2, dash="dash"),
             )
         )
-        _dark(rfig, title="RAG Quality Metrics", yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]), height=350)
+        _dark(
+            rfig,
+            title="RAG Quality Metrics",
+            yaxis=dict(range=[0, 1.05], **_DARK_LAYOUT["yaxis"]),
+            height=350,
+        )
 
         af = sum(r.faithfulness_score or 0 for r in rag_recs) / len(rag_recs)
         ac = sum(r.context_relevance or 0 for r in rag_recs) / len(rag_recs)
@@ -410,15 +449,27 @@ def export_csv():
     records = _fetch_records(1000)
     if not records:
         return gr.update(visible=False)
-    tmp = tempfile.NamedTemporaryFile(
-        mode="w", suffix=".csv", delete=False, newline=""
-    )
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="")
     fields = [
-        "id", "app_name", "timestamp", "query", "response", "model_name",
-        "latency_ms", "health_score", "hallucination_score", "drift_score",
-        "faithfulness_score", "context_relevance", "answer_relevancy",
-        "groundedness_score", "sentiment_score", "toxicity_score",
-        "response_length", "language_detected", "is_denial",
+        "id",
+        "app_name",
+        "timestamp",
+        "query",
+        "response",
+        "model_name",
+        "latency_ms",
+        "health_score",
+        "hallucination_score",
+        "drift_score",
+        "faithfulness_score",
+        "context_relevance",
+        "answer_relevancy",
+        "groundedness_score",
+        "sentiment_score",
+        "toxicity_score",
+        "response_length",
+        "language_detected",
+        "is_denial",
     ]
     writer = csv.DictWriter(tmp, fieldnames=fields)
     writer.writeheader()

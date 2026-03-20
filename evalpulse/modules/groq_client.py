@@ -149,14 +149,7 @@ class GroqClient:
                 "</response>"
             )
         else:
-            user_content = (
-                "<query>\n"
-                f"{query}\n"
-                "</query>\n\n"
-                "<response>\n"
-                f"{response}\n"
-                "</response>"
-            )
+            user_content = f"<query>\n{query}\n</query>\n\n<response>\n{response}\n</response>"
 
         result = self.chat_with_system(
             system=(

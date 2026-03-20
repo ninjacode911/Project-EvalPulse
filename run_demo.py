@@ -8,13 +8,13 @@ This creates TWO browser tabs:
 Run: python run_demo.py
 """
 
+import random
 import threading
 import time
-import random
 
 import gradio as gr
 
-from evalpulse import init, track, EvalContext
+from evalpulse import EvalContext, init, track
 from evalpulse.storage.sqlite_store import SQLiteStore
 
 # ── Knowledge base for RAG demo ──
@@ -133,8 +133,7 @@ def chat_with_context(query: str) -> str:
 
     if context:
         with EvalContext(
-            app="demo-chatbot", query=query, context=context,
-            model="simulated-llm-v1"
+            app="demo-chatbot", query=query, context=context, model="simulated-llm-v1"
         ) as ctx:
             response = chat_response(query)
             ctx.log(response)
@@ -203,7 +202,7 @@ def create_chatbot_app() -> gr.Blocks:
 
         with gr.Row():
             with gr.Column(scale=3):
-                chatbot = gr.ChatInterface(
+                gr.ChatInterface(
                     fn=gradio_chat,
                     examples=[
                         "What is Python?",
@@ -221,9 +220,7 @@ def create_chatbot_app() -> gr.Blocks:
                 )
             with gr.Column(scale=1):
                 stats_display = gr.Markdown("**Stats loading...**")
-                refresh_stats = gr.Button(
-                    "Refresh Stats", variant="secondary", size="sm"
-                )
+                refresh_stats = gr.Button("Refresh Stats", variant="secondary", size="sm")
                 refresh_stats.click(fn=get_live_stats, outputs=stats_display)
 
                 gr.Markdown("""
@@ -265,6 +262,7 @@ def main():
     print("[2/3] Seeding demo data (200 records)...")
     try:
         from dashboard.demo_data import generate_demo_records
+
         store = SQLiteStore("evalpulse.db")
         if store.count() == 0:
             records = generate_demo_records(200)
@@ -288,12 +286,15 @@ def main():
     print()
 
     from dashboard.app import create_app
+
     dashboard = create_app()
 
     def run_dashboard():
         dashboard.launch(
-            server_name="0.0.0.0", server_port=7860,
-            prevent_thread_lock=True, quiet=True,
+            server_name="0.0.0.0",
+            server_port=7860,
+            prevent_thread_lock=True,
+            quiet=True,
         )
 
     dash_thread = threading.Thread(target=run_dashboard, daemon=True)
@@ -304,7 +305,8 @@ def main():
     # Launch chatbot (this blocks)
     chatbot = create_chatbot_app()
     chatbot.launch(
-        server_name="0.0.0.0", server_port=7861,
+        server_name="0.0.0.0",
+        server_port=7861,
         prevent_thread_lock=False,
     )
 

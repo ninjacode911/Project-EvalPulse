@@ -92,9 +92,7 @@ def _enqueue_event(event: EvalEvent) -> None:
     try:
         _event_queue.put_nowait(event)
     except queue.Full:
-        logger.warning(
-            "EvalPulse event queue full — event dropped."
-        )
+        logger.warning("EvalPulse event queue full — event dropped.")
 
 
 def track(

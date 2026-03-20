@@ -9,14 +9,12 @@ from __future__ import annotations
 import random
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import gradio as gr
 import plotly.graph_objects as go
 
 # ── Lightweight EvalRecord (replaces pydantic model) ─────────────────
-
-UTC = timezone.utc
 
 
 @dataclass
@@ -138,9 +136,7 @@ def generate_demo_records(n: int = 200) -> list[EvalRecord]:
         quality = (1 - toxicity) * 0.5 + sentiment * 0.4 + 0.1
         components.append(quality * 0.15)
         health = int(
-            sum(components)
-            / sum([0.35, 0.25] + ([0.20] if ground else []) + [0.15])
-            * 100
+            sum(components) / sum([0.35, 0.25] + ([0.20] if ground else []) + [0.15]) * 100
         )
         health = max(0, min(100, health))
 
@@ -255,9 +251,7 @@ def health_gauge_chart(score: int | None = None) -> go.Figure:
             mode="gauge+number",
             value=score,
             number=dict(
-                font=dict(
-                    size=48, color=bar_color, family="JetBrains Mono, monospace"
-                ),
+                font=dict(size=48, color=bar_color, family="JetBrains Mono, monospace"),
                 suffix="",
             ),
             gauge=dict(
@@ -301,7 +295,7 @@ def radar_chart(
             r=vals,
             theta=cats,
             fill="toself",
-            fillcolor=f"rgba({int(_CYAN[1:3], 16)},{int(_CYAN[3:5], 16)},{int(_CYAN[5:7], 16)},0.12)",
+            fillcolor="rgba(6,214,160,0.12)",
             line=dict(color=_CYAN, width=2),
             marker=dict(size=5, color=_CYAN),
         )
@@ -322,9 +316,7 @@ def radar_chart(
                 tickfont=dict(size=10, color=_TEXT),
             ),
         ),
-        title=dict(
-            text=title, font=dict(size=12, color=_TEXT_DIM), x=0, xanchor="left"
-        ),
+        title=dict(text=title, font=dict(size=12, color=_TEXT_DIM), x=0, xanchor="left"),
     )
     return fig
 
@@ -468,13 +460,25 @@ def build_overview():
     )
     # Only show threshold lines if they're within visible range
     if min_score <= 75:
-        trend.add_hline(y=75, line_dash="dot", line_color="#f59e0b", line_width=1,
-                        annotation_text="Warning: 75", annotation_font_size=9,
-                        annotation_font_color="#f59e0b")
+        trend.add_hline(
+            y=75,
+            line_dash="dot",
+            line_color="#f59e0b",
+            line_width=1,
+            annotation_text="Warning: 75",
+            annotation_font_size=9,
+            annotation_font_color="#f59e0b",
+        )
     if min_score <= 40:
-        trend.add_hline(y=40, line_dash="dot", line_color="#ef4444", line_width=1,
-                        annotation_text="Critical: 40", annotation_font_size=9,
-                        annotation_font_color="#ef4444")
+        trend.add_hline(
+            y=40,
+            line_dash="dot",
+            line_color="#ef4444",
+            line_width=1,
+            annotation_text="Critical: 40",
+            annotation_font_size=9,
+            annotation_font_color="#ef4444",
+        )
     _dark(
         trend,
         title="Health Score Trend",
@@ -499,9 +503,7 @@ def build_overview():
 
     return (
         _kpi_card("Health Score", str(avg_health), h_sub, "#06d6a0"),
-        _kpi_card(
-            "Hallucination", f"{avg_halluc:.1%}", f"avg of {len(records)}", "#f59e0b"
-        ),
+        _kpi_card("Hallucination", f"{avg_halluc:.1%}", f"avg of {len(records)}", "#f59e0b"),
         _kpi_card("Drift", d_val, d_sub, "#3b82f6"),
         _kpi_card("Evaluations", f"{len(records):,}", "total tracked", "#a78bfa"),
         health_gauge_chart(avg_health),
@@ -603,9 +605,7 @@ def build_drift():
     sorted_recs = sorted(records, key=lambda r: r.timestamp)
     drift_recs = [r for r in sorted_recs if r.drift_score is not None]
 
-    emb_recs = [
-        r for r in sorted_recs if r.embedding_vector and len(r.embedding_vector) > 2
-    ]
+    emb_recs = [r for r in sorted_recs if r.embedding_vector and len(r.embedding_vector) > 2]
     if len(emb_recs) >= 3:
         embed = go.Figure(
             go.Scatter(

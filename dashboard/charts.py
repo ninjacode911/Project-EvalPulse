@@ -141,7 +141,7 @@ def time_series_chart(
             fill="tozeroy",
             fillcolor=color.replace(")", ",0.08)").replace("rgb", "rgba")
             if "rgb" in color
-            else f"rgba({int(color[1:3],16)},{int(color[3:5],16)},{int(color[5:7],16)},0.08)",
+            else f"rgba({int(color[1:3], 16)},{int(color[3:5], 16)},{int(color[5:7], 16)},0.08)",
         )
     )
 
@@ -285,7 +285,7 @@ def radar_chart(
             r=vals,
             theta=cats,
             fill="toself",
-            fillcolor=f"rgba({int(_CYAN[1:3],16)},{int(_CYAN[3:5],16)},{int(_CYAN[5:7],16)},0.12)",
+            fillcolor="rgba(6,214,160,0.12)",
             line=dict(color=_CYAN, width=2),
             marker=dict(size=5, color=_CYAN),
         )

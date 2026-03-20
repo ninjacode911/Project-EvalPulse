@@ -99,10 +99,7 @@ def cmd_dashboard(args: argparse.Namespace) -> None:
             sys.path.insert(0, str(project_root))
             from dashboard.app import create_app
         else:
-            print(
-                "Error: Dashboard module not found. "
-                "Run from the project root directory."
-            )
+            print("Error: Dashboard module not found. Run from the project root directory.")
             sys.exit(1)
 
     app = create_app()

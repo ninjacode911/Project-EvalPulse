@@ -55,9 +55,7 @@ class HallucinationModule(EvalModule):
                     # Handle SecretStr or plain str
                     if key is not None:
                         api_key = (
-                            key.get_secret_value()
-                            if hasattr(key, "get_secret_value")
-                            else str(key)
+                            key.get_secret_value() if hasattr(key, "get_secret_value") else str(key)
                         )
                 if not api_key:
                     api_key = os.environ.get("GROQ_API_KEY")
