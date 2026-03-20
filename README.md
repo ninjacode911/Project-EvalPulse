@@ -356,21 +356,72 @@ evalpulse dashboard
 
 ## Security
 
-EvalPulse implements defense-in-depth security:
+EvalPulse implements defense-in-depth security across every layer:
 
-- **Prompt injection protection**: LLM-as-judge uses XML-delimited content with separate system/user message roles
-- **Input validation**: All Pydantic model fields have range constraints (`ge=0.0, le=1.0`) with `validate_assignment=True`
-- **Secret handling**: API keys use `pydantic.SecretStr` to prevent accidental logging
-- **SQL injection prevention**: All user values use parameterized queries; column names validated against allowlists
-- **SSRF protection**: Slack webhook URLs validated against `https://hooks.slack.com` domain
-- **Thread safety**: SQLite uses WAL mode with proper locking; all singleton initializations are thread-safe
-- **YAML safety**: Uses `yaml.safe_load()` exclusively
+### Prompt Injection Protection
+The LLM-as-judge hallucination scorer wraps all user-provided content (query, context, response) in XML delimiter tags (`<query>`, `<context>`, `<response>`) and sends instructions via a separate system message role. The system prompt explicitly instructs the model to treat tag contents as data, not instructions. This prevents adversarial inputs from manipulating the hallucination scoring.
+
+### Input Validation
+All Pydantic model fields on `EvalRecord` have strict constraints — score fields use `Field(ge=0.0, le=1.0)`, string fields have `max_length` limits, and list fields have size caps. `validate_assignment=True` ensures these constraints are enforced even when scores are set via `setattr()` in the worker. The worker additionally clamps all float scores to [0.0, 1.0] before assignment to prevent floating-point edge cases.
+
+### Secret Handling
+The `groq_api_key` config field uses Pydantic's `SecretStr` type, which prevents the key from appearing in logs, `repr()`, `str()`, or serialized output. API keys are read from environment variables (`GROQ_API_KEY`) or the YAML config. The runtime config file (`evalpulse.yml`) is excluded from git via `.gitignore`.
+
+### SQL Injection Prevention
+All user-provided values in WHERE clauses use parameterized queries (`?` placeholders). Column names used in ORDER BY and aggregate queries are validated against hardcoded allowlists before string interpolation. The `_VALID_METRICS` set and `valid_columns` set serve as security controls.
+
+### SSRF Protection
+Slack webhook URLs are validated against the `https://hooks.slack.com` domain before any HTTP request is made. Non-HTTPS URLs and non-Slack domains are rejected with a warning log.
+
+### Thread Safety
+- SQLite uses WAL mode with `PRAGMA busy_timeout=5000` for concurrent access
+- All write operations acquire `self._lock` (threading.Lock)
+- All thread-local connections are tracked in `_all_connections` and closed on shutdown
+- The detoxify model uses double-check locking for thread-safe lazy initialization
+- `AlertEngine` and `NotificationDispatcher` persist as worker instance variables (not recreated per batch)
+- ContextVar tokens are properly reset in `EvalContext.__exit__`
+
+### YAML Safety
+Uses `yaml.safe_load()` exclusively — never `yaml.load()` or `yaml.unsafe_load()`. This prevents arbitrary Python object deserialization from config files.
+
+### Additional Measures
+- Bounded event queue (10,000) with overflow warning logging
+- ChromaDB collection names sanitized to alphanumeric characters only
+- Embedding inputs truncated to 10,000 characters to prevent OOM
+- No use of `eval()`, `exec()`, `subprocess`, or `os.system()` anywhere in the codebase
+
+---
+
+## Deployment
+
+### Local Development
+```bash
+git clone https://github.com/ninjacode911/Project-EvalPulse.git
+cd Project-EvalPulse
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -e ".[dev]"
+pytest tests/ -v --timeout=120
+python dashboard/app.py  # Dashboard at http://localhost:7860
+```
+
+### HuggingFace Spaces (Live Demo)
+The live demo dashboard runs at: **https://huggingface.co/spaces/NinjainPJs/EvalPulse**
+
+It uses a self-contained `hf_space/app.py` with 200 synthetic evaluation records — no backend required. The demo showcases all 4 dashboard tabs with realistic data distributions.
+
+### Production Usage
+For production LLM monitoring:
+1. `pip install -e .` in your LLM app's environment
+2. Add `@track` to your LLM functions
+3. Run `python dashboard/app.py` locally — it reads from the same SQLite database
+4. Configure alert thresholds in `evalpulse.yml`
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and PR process.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, adding new modules, and PR process.
 
 ---
 
@@ -380,4 +431,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style, and PR
 
 ---
 
-**EvalPulse** | [GitHub](https://github.com/ninjacode911/Project-EvalPulse) | Built by [@ninjacode911](https://github.com/ninjacode911)
+**EvalPulse** | [GitHub](https://github.com/ninjacode911/Project-EvalPulse) | [Live Demo](https://huggingface.co/spaces/NinjainPJs/EvalPulse) | Built by [@ninjacode911](https://github.com/ninjacode911)
