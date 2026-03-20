@@ -1,0 +1,44 @@
+# EvalPulse Configuration
+# Copy this file to evalpulse.yml and customize
+
+app_name: "my-llm-app"
+
+# Storage backend: "sqlite" (default) or "postgres"
+storage_backend: "sqlite"
+sqlite_path: "evalpulse.db"
+# database_url: "postgresql://user:pass@host/db"  # for postgres
+
+# Groq API (optional - for LLM-as-judge hallucination scoring)
+# groq_api_key: "gsk_..."
+
+# Embedding model
+embedding_model: "all-MiniLM-L6-v2"
+
+# Module enable/disable
+modules:
+  hallucination: true
+  drift: true
+  rag_quality: true
+  response_quality: true
+  regression: true
+
+# Drift detection settings
+drift_window_size: 50
+baseline_window_days: 7
+drift_threshold: 0.15
+
+# Alert thresholds
+thresholds:
+  hallucination: 0.3
+  drift: 0.15
+  rag_groundedness_min: 0.65
+  toxicity: 0.05
+  regression_fail_rate: 0.10
+
+# Alert cooldown (seconds)
+alert_cooldown_seconds: 300
+
+# Notifications (optional)
+# notifications:
+#   email: "you@example.com"
+#   slack_webhook: "https://hooks.slack.com/..."

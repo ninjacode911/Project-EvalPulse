@@ -1,0 +1,29 @@
+name: Prompt Regression Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"  # Daily at 6 AM UTC
+  push:
+    paths:
+      - "examples/golden_datasets/**"
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run regression tests
+        run: |
+          echo "Regression test runner will be implemented in Week 6"
+          # evalpulse regression run --dataset examples/golden_datasets/sample_golden.json

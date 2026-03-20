@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evalpulse"
+version = "0.1.0"
+description = "Open-source LLM evaluation and semantic drift monitoring platform"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Navnit Amrutharaj", email = "navnita004@gmail.com"}
+]
+keywords = ["llm", "evaluation", "monitoring", "drift", "hallucination", "rag", "observability"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pydantic>=2.0,<3.0",
+    "pyyaml>=6.0",
+    "gradio>=4.0",
+    "plotly>=5.0",
+    "evidently>=0.4.0",
+    "sentence-transformers>=2.2.0",
+    "chromadb>=0.4.0",
+    "groq>=0.4.0",
+    "detoxify>=0.5.0",
+    "langdetect>=1.0.9",
+    "umap-learn>=0.5.0",
+    "httpx>=0.24.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "pytest-timeout>=2.1",
+    "ruff>=0.1.0",
+]
+postgres = [
+    "psycopg2-binary>=2.9",
+]
+
+[project.scripts]
+evalpulse = "evalpulse.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/ninjacode911/evalpulse"
+Repository = "https://github.com/ninjacode911/evalpulse"
+
+[tool.setuptools.packages.find]
+include = ["evalpulse*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"dashboard/app.py" = ["E501"]  # CSS strings exceed line length
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 60
+asyncio_mode = "auto"

@@ -1,0 +1,40 @@
+{
+  "name": "sample-golden",
+  "version": "1.0",
+  "description": "Sample golden dataset for regression testing",
+  "examples": [
+    {
+      "query": "What is Python?",
+      "expected_response": "Python is a high-level programming language.",
+      "max_hallucination": 0.3,
+      "max_toxicity": 0.1,
+      "expected_language": "en"
+    },
+    {
+      "query": "What is machine learning?",
+      "expected_response": "Machine learning is a subset of AI.",
+      "max_hallucination": 0.3,
+      "max_toxicity": 0.1
+    },
+    {
+      "query": "Explain neural networks",
+      "expected_response": "Neural networks are computing systems inspired by biological neural networks.",
+      "max_hallucination": 0.4,
+      "max_toxicity": 0.1
+    },
+    {
+      "query": "What is RAG?",
+      "expected_response": "RAG stands for Retrieval-Augmented Generation.",
+      "context": "RAG (Retrieval-Augmented Generation) is a technique that combines information retrieval with text generation.",
+      "max_hallucination": 0.3,
+      "min_faithfulness": 0.5,
+      "max_toxicity": 0.1
+    },
+    {
+      "query": "What is deep learning?",
+      "expected_response": "Deep learning uses multi-layered neural networks.",
+      "max_hallucination": 0.3,
+      "max_toxicity": 0.1
+    }
+  ]
+}
