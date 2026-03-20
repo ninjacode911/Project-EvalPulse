@@ -4,6 +4,8 @@
 
 EvalPulse gives developers a real-time pulse on the health, reliability, and quality of their LLM-powered applications — entirely for free. Drop it into any LLM app in under 30 minutes with 3 lines of code, and immediately see a live dashboard of hallucination rates, semantic drift, response quality trends, and alert thresholds — all for $0/month.
 
+**[Live Demo on HuggingFace Spaces](https://huggingface.co/spaces/NinjainPJs/EvalPulse)**
+
 ---
 
 ## Dashboard
